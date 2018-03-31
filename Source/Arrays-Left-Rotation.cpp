@@ -2,6 +2,7 @@
 // Title: Arrays-Left-Rotation.cpp
 // Date Modified: 3/30/2018
 /* Description: 
+
 A left rotation operation on an array of size N shifts each of the array's elements 1 unit to the left. 
 For example, if 2 left rotations are performed on array [1, 2, 3, 4, 5], then the array would become [3,4,5,1,2].
 

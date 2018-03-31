@@ -68,10 +68,17 @@ long long count_inversions(vector<long long> a)
 
 void mergeSort(vector<long long>& elements, int left, int right)
 {
-	// split
+	// split (if left not less than right -- they're equal -- it's a single value in a vector)
 	if (left < right)
 	{
+		/*cout << "Test(L=" << left << ";R=" << right << "): [";
+		for (int i = 0; i < elements.size(); ++i)
+			cout << elements[i];
+*/
 		int middle = (left + right) / 2;
+
+		//cout << "] Middle: " << middle << endl;
+
 		// split left
 		mergeSort(elements, left, middle);
 		// split right
@@ -118,45 +125,45 @@ void mergeSort(vector<long long>& elements, int left, int right)
 //     return -1;
 // }
 
-void merge(vector<long long>& a, int left, int middle, int right)
+void merge(vector<long long>& elements, int left, int middle, int right)
 {
 	int size = right - left + 1;
+	int left_index = 0, right_index = middle + 1, index = 0;
+	middle = middle - left;
+	right = right - left;
 	vector<long long> temp;
 
 	// TODO: cut excess memory useage
 	for (int i = 0; i < size; ++i)
-		temp.push_back(a.at(left + i));
+		temp.push_back(elements.at(left + i));
 
-	middle = middle - left;
-	right = right - left;
-	int k = 0, i = 0, j = middle + 1;
-
-	while (i <= middle && j <= right)
+	// compare left and right arrays
+	while (left_index <= middle && right_index <= right)
 	{
-		if (temp.at(i) <= temp.at(j))
+		if (temp.at(left_index) <= temp.at(right_index))
 		{
-			a.at(k) = temp.at(i);
-			++i;
+			elements.at(index) = temp.at(left_index);
+			++left_index;
 		}
 		else
 		{
-			a.at(k) = temp.at(j);
-			++j;
+			elements.at(index) = temp.at(right_index);
+			++right_index;
 		}
-		++k;
+		++index;
 	}
 
 	// copy left
-	if (i > middle)
+	if (left_index > middle)
 	{
-		for (; j <= right; ++j, ++k)
-			a.at(k) = temp.at(j);
+		for (; right_index <= right; ++right_index, ++index)
+			elements.at(index) = temp.at(right_index);
 	}
 	// copy right
 	else
 	{
-		for (; i <= middle; ++i, ++k)
-			a.at(k) = temp.at(i);
+		for (; left_index <= middle; ++left_index, ++index)
+			elements.at(index) = temp.at(left_index);
 	}
 
 	++NUM_INVERSIONS;

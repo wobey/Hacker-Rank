@@ -1,4 +1,4 @@
-Cracking the coding interview
+[HackerRank Programming Challenges](https://www.hackerrank.com)
 =============================
 
 Below are my personal answers to multiple HackerRank programming challenges.

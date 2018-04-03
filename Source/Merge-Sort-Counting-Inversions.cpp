@@ -1,5 +1,5 @@
 // Author: John Fitzgerald
-// Title: Arrays-Left-Rotation.cpp
+// Title: Merge-Sort-Counting-Inversions.cpp
 // Date Modified: 4/3/2018
 /* Description:
 https://www.hackerrank.com/challenges/ctci-merge-sort/problem

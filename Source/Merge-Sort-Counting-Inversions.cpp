@@ -1,6 +1,6 @@
 // Author: John Fitzgerald
 // Title: Arrays-Left-Rotation.cpp
-// Date Modified: 3/30/2018
+// Date Modified: 4/3/2018
 /* Description:
 https://www.hackerrank.com/challenges/ctci-merge-sort/problem
 Given  datasets, print the number of inversions that must be swapped to sort each dataset on a new line.
@@ -32,160 +32,171 @@ Sample Output:
 */
 #include <vector>
 #include <iostream>
+#include <fstream>
+#include <string>
 using namespace std;
 
-long long NUM_INVERSIONS = 0;
-long long count_inversions(vector<long long>);
-void mergeSort(vector<long long>&, int, int);
-void merge(vector<long long>&, int, int, int);
+void readFromFile();
+unsigned long long count_inversions(vector<int>&);
+unsigned long long mergeSort(vector<int>&, int, int);
+unsigned long long merge(vector<int>&, int, int, int);
 
-long long count_inversions(vector<long long> a)
+unsigned long long NUM_INVERSIONS_TEST = 0;
+
+unsigned long long count_inversions(vector<int>& a)
 {
-	// long long num_inversions = 0;
+	// unsigned long long num_inversions = 0;
 	int size = a.size();
-	bool isSorted = true;
+	bool is_sorted = true;
 
-	// TODO: try utilizing a lambda
 	// determine if sorted already
 	for (int i = 0; i < size - 1; ++i)
 	{
 		if (a[i] > a[i + 1])
 		{
-			isSorted = false;
+			is_sorted = false;
 			break;
 		}
 	}
 
 	// perform merge sort and record number of inversions
-	if (!isSorted)
-		mergeSort(a, 0, a.size() - 1);
+	if (!is_sorted)
+		return mergeSort(a, 0, a.size() - 1);
 
-	// for_each(a.begin(), a.end(), [](int val) { cout << val << " "; });
-	// cout << endl;
-
-	return NUM_INVERSIONS;
+	return 0;
 }
 
-void mergeSort(vector<long long>& elements, int left, int right)
+// split vector into vectors of size 1 and merge sort into a single vector
+unsigned long long mergeSort(vector<int>& elements, int left, int right)
 {
-	// split (if left not less than right -- they're equal -- it's a single value in a vector)
+	unsigned long long num_inversions = 0;
+
+	// split (if left IS NOT less than right: they're equal, so it's a single value in a vector)
 	if (left < right)
 	{
-		/*cout << "Test(L=" << left << ";R=" << right << "): [";
-		for (int i = 0; i < elements.size(); ++i)
-			cout << elements[i];
-*/
-		int middle = (left + right) / 2;
-
-		//cout << "] Middle: " << middle << endl;
+		int middle = (left + right) / 2; // floor if original vector size is odd
 
 		// split left
-		mergeSort(elements, left, middle);
+		num_inversions += mergeSort(elements, left, middle);
 		// split right
-		mergeSort(elements, middle + 1, right);
+		num_inversions += mergeSort(elements, middle + 1, right);
 
 		// merge the two
-		merge(elements, left, middle, right);
+		num_inversions += merge(elements, left, middle, right);
 	}
+
+	return num_inversions;
 }
 
-// int mergeSort(vector<long long> a)
-// {
-//     int size = a.size();
-//     vector<vector<long long>> elements;
-//     for_each(a.begin(), a.end(), [&elements](int val) { elements.push_back(vector<long long>(1, val)); });  
-//     // print
-//     // for_each(elements.begin(), elements.end(), [](vector<long long> val) { cout << val[0] << " "; });  
-
-//     // compare left half, and store in new left vector (repeat for right)
-//     // continue until two remain
-
-//     cout << "size=" << size << endl;
-
-//     while (size > 1)
-//     {
-//         // resize vector<vector<long long>>
-//         std::vector<vector<long long>>::const_iterator it = elements.begin();
-//         int index = 0;
-//         // for_each(elements.begin(), elements.end(), [&]() 
-//         // { 
-//         //     if (elements.at(index).empty())
-//         //         elements.erase(elements.begin() + index);
-//         //     ++index; 
-//         // });
-
-//         --size;
-//     }
-
-//     for (int i = 0; i < size; ++i)
-//     {
-//         cout << "i=" << i << " ";
-//     }
-
-//     return -1;
-// }
-
-void merge(vector<long long>& elements, int left, int middle, int right)
+// merge sorts two sides of vector into a single vector
+unsigned long long merge(vector<int>& elements, int left, int middle, int right)
 {
-	int size = right - left + 1;
-	int left_index = 0, right_index = middle + 1, index = 0;
+	int size = right - left + 1, num_inversions = 0, left_index, right_index, merged_index;
+	vector<int> temp(size);
 	middle = middle - left;
 	right = right - left;
-	vector<long long> temp;
 
-	// TODO: cut excess memory useage
+	// temp vector and merged vector indices
+	left_index = 0;
+	right_index = middle + 1;
+	merged_index = left;
+
+	// copy values to be compared (simulate two vectors with three indexes: left, middle, right)
 	for (int i = 0; i < size; ++i)
-		temp.push_back(elements.at(left + i));
+		temp.at(i) = elements.at(left + i);
 
-	// compare left and right arrays
+	// merge smallest value from each side of temp vector
 	while (left_index <= middle && right_index <= right)
 	{
 		if (temp.at(left_index) <= temp.at(right_index))
 		{
-			elements.at(index) = temp.at(left_index);
+			elements.at(merged_index) = temp.at(left_index);
 			++left_index;
 		}
 		else
 		{
-			elements.at(index) = temp.at(right_index);
+			elements.at(merged_index) = temp.at(right_index);
+			num_inversions += middle - left_index + 1;
 			++right_index;
 		}
-		++index;
+
+		++merged_index;
 	}
 
-	// copy left
+	// copy the remaining temp's left to original vector
 	if (left_index > middle)
 	{
-		for (; right_index <= right; ++right_index, ++index)
-			elements.at(index) = temp.at(right_index);
+		for (; right_index <= right; ++right_index, ++merged_index)
+			elements.at(merged_index) = temp.at(right_index);
 	}
-	// copy right
+	// copy the remaining temp's right to original vector
 	else
 	{
-		for (; left_index <= middle; ++left_index, ++index)
-			elements.at(index) = temp.at(left_index);
+		for (; left_index <= middle; ++left_index, ++merged_index)
+			elements.at(merged_index) = temp.at(left_index);
 	}
 
-	++NUM_INVERSIONS;
+	return num_inversions;
 }
 
 int main()
 {
-	int t;
-	cin >> t;
+	// do we read from a file
+	bool is_file = false;
 
-	for (int a0 = 0; a0 < t; a0++) {
-		int n;
-		cin >> n;
-		vector<long long> arr(n);
+	if (is_file)
+		readFromFile();
+	else
+	{
+		int t, n;
+		cin >> t;
 		
-		for (int arr_i = 0; arr_i < n; arr_i++) 
-		{
-			cin >> arr[arr_i];
+		for (int a0 = 0; a0 < t; a0++) {
+			unsigned long long n;
+			cin >> n;
+			vector<int> arr(n);
+
+			for (int arr_i = 0; arr_i < n; arr_i++)
+				cin >> arr[arr_i];
+
+			cout << count_inversions(arr) << endl;
 		}
-		cout << count_inversions(arr) << endl;
-		
-		NUM_INVERSIONS = 0;
 	}
+
 	return 0;
+}
+
+void readFromFile()
+{
+	string file_name, line;
+	cout << "Please enter filename to read from: ";
+	cin >> file_name;
+
+	ifstream file(file_name);
+
+	if (file.good())
+	{
+		getline(file, line);
+		int num = stoi(line);
+		int *nums = new int[num];
+		vector<int> arr(num);
+		int size, val;
+
+		// read N number of arrays
+		for (int i = 0; i < num; ++i)
+		{
+			file >> size;
+			vector<int> arr(size);
+
+			for (int i = 0; i < size; ++i)
+			{
+				file >> val;
+				arr.push_back(val);
+			}
+
+			cout << count_inversions(arr) << endl;
+		}
+	}
+
+	file.close();
 }
